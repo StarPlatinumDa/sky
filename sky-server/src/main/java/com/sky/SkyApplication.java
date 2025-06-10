@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
+// 组合注解 包含了 @EnableAutoConfiguration
 @SpringBootApplication
 @EnableTransactionManagement //开启注解方式的事务管理
 @Slf4j

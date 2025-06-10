@@ -8,6 +8,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
 
+/**
+ * 用于生成和验证token
+ */
 public class JwtUtil {
     /**
      * 生成jwt

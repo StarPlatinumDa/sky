@@ -3,6 +3,7 @@ server:
 
 spring:
   profiles:
+    # 开启dev所以dev文件也有效
     active: dev
   main:
     allow-circular-references: true
