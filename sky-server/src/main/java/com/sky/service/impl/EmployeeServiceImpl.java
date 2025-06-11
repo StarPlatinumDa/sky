@@ -1,16 +1,20 @@
 package com.sky.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
+import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
+import com.sky.result.PageResult;
 import com.sky.service.EmployeeService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,6 +93,27 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         // 持久层
         employeeMapper.insert(employee);
+    }
+
+    /**
+     * 员工分页
+     *
+     * @param employeePageQueryDTO
+     * @return
+     */
+    @Override
+    public PageResult page(EmployeePageQueryDTO employeePageQueryDTO) {
+        // 分页通过数据的limit来实现
+        // select * from employee limit 0,10
+        // 使用Pagehelper进行分页查询
+        // 会跟后面的sql语句进行动态拼接(类似于mybatis的动态sql,动态拼接limit关键字和自动计算offset和count)
+        PageHelper.startPage(employeePageQueryDTO.getPage(),employeePageQueryDTO.getPageSize());
+        // 之所以没传参也能分页，是因为PageHelper先在类的ThreadLocal局部变量中存了传入的page页码和大小
+        // 在分页前取出，动态地计算并拼接limit语句
+        // 且在执行sql语句前会自动执行SELECT count(0) FROM employee得到总记录数
+        Page<Employee> page=employeeMapper.page(employeePageQueryDTO);
+        PageResult pageResult = new PageResult(page.getTotal(),page.getResult());
+        return pageResult;
     }
 
 }
