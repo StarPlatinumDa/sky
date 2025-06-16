@@ -116,4 +116,23 @@ public class EmployeeServiceImpl implements EmployeeService {
         return pageResult;
     }
 
+    /**
+     * 员工禁用
+     * @param status
+     * @param id
+     */
+    @Override
+    public void statusSetting(Integer status, Long id) {
+        // 本质是修改表中的status字段
+        // update employee set status=? where id=?
+        // 为了更通用，还是传实体，而不是只传两个参数
+//        Employee employee = new Employee();
+//        employee.setStatus(status);
+//        employee.setId(id);
+        // 因为有注解，所以可以用builder
+        Employee employee = Employee.builder().status(status).id(id).build();
+
+
+        employeeMapper.update(employee);
+    }
 }

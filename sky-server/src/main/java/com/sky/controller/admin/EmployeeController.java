@@ -111,4 +111,14 @@ public class EmployeeController {
         return Result.success(result);
     }
 
+    @PostMapping("/status/{status}")
+    @ApiOperation("员工禁用账号")
+    public Result statusSetting(@PathVariable Integer status,Long id){
+        log.info("启用员工状态禁用:{},{}",status,id);
+        employeeService.statusSetting(status,id);
+        return Result.success();
+    }
+
+
+
 }
