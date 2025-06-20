@@ -38,7 +38,9 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
     protected void addInterceptors(InterceptorRegistry registry) {
         log.info("开始注册自定义拦截器...");
         registry.addInterceptor(jwtTokenAdminInterceptor)
+                // 拦截所有admin需要通过的操作(即登录后的所有操作都需要)
                 .addPathPatterns("/admin/**")
+                // 不拦截登录操作(只有先登录才有token)
                 .excludePathPatterns("/admin/employee/login");
     }
 
@@ -86,7 +88,8 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         log.info("正在拓展消息转换器...");
         // 创建消息转换器对象
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        // 为消息转换器设置一个对象转换器(将java对象序列化为json格式)   这个转化器也是自己写的 在commen/json中
+        // 为消息转换器设置一个对象转换器(将java对象序列化为json格式 例如LocalDateTime.now()的数据)
+        // 这个转化器也是自己写的 在commen/json中
         converter.setObjectMapper(new JacksonObjectMapper());
         // 将自己的消息转换器添加到容器中，交给框架  且优先使用(不然放在最后可能用不到)
         converters.add(0,converter);

@@ -38,6 +38,7 @@ public class JwtUtil {
                 // 设置过期时间
                 .setExpiration(exp);
 
+        //.compact()方法的作用是将JWT的header、payload和signature部分连接起来，并返回最终生成的JWT字符串
         return builder.compact();
     }
 
@@ -53,7 +54,8 @@ public class JwtUtil {
         Claims claims = Jwts.parser()
                 // 设置签名的秘钥
                 .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
-                // 设置需要解析的jwt
+                // 解析并验证jwt(即验证token)，同时验证签名是否正确
+                // 最后getBody()获取jwt负载的自定义map
                 .parseClaimsJws(token).getBody();
         return claims;
     }

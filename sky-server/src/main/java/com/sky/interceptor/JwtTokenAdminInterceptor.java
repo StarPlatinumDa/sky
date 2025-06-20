@@ -46,8 +46,10 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
         //2、校验令牌
         try {
             log.info("jwt校验:{}", token);
+            // 传入本地签名核对是否和token中的签名是否相同，得到自定义存入的map
             Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), token);
             // id是在Controller层login的时候放入的
+            // 通过map.get(key)得到当前登录者的id
             Long empId = Long.valueOf(claims.get(JwtClaimsConstant.EMP_ID).toString());
             log.info("当前员工id：", empId);
 
