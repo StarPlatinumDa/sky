@@ -2,5 +2,6 @@
 .idea
 *.iml
 *.class
+E:\javaproject\sky-take-out\sky-server\src\main\resources\application.yml
 *Test.java
 **/test/
