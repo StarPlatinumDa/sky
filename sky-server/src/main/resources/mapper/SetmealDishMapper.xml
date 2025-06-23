@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.SetmealDishMapper">
+
+<!-- collection指定要和传入的参数名相同  经测试()括号可以写在外面
+select setmeal_id from setmeal_dish where id in (1,2,3)-->
+    <select id="getSetMealDishIdsByIds" resultType="java.lang.Long">
+        select setmeal_id from setmeal_dish where setmeal_id in(
+        <foreach collection="list" item="dishId" separator=",">
+            #{dishId}
+        </foreach>
+        )
+    </select>
+</mapper>
