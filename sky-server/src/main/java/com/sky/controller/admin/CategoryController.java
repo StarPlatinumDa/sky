@@ -20,7 +20,7 @@ import java.util.ArrayList;
 @RestController
 @RequestMapping("/admin/category")
 @Slf4j // 不用每次多写log的成员对象
-@Api("分类相关接口")
+@Api(tags = "分类相关接口")
 public class CategoryController {
     @Autowired
     private CategoryService categoryService;

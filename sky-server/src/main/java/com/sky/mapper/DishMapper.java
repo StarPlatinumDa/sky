@@ -9,6 +9,9 @@ import com.sky.vo.DishVO;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+
+import java.util.ArrayList;
 
 @Mapper
 public interface DishMapper {
@@ -32,4 +35,12 @@ public interface DishMapper {
      */
     @Delete("delete from dish where id=#{id};")
     void deleteById(Long id);
+
+    void deleteBatchId(ArrayList<Long> ids);
+
+    @Select("select * from dish where id=#{id}")
+    Dish getById(Long id);
+
+    @AutoFill(OperationType.UPDATE)
+    void update(Dish dish);
 }

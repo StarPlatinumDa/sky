@@ -16,35 +16,25 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Dish implements Serializable {
-
+    // 每个继承Serializable类的标识，在序列化和反序列化后进行比对 以确定没错
     private static final long serialVersionUID = 1L;
 
     private Long id;
-
     //菜品名称
     private String name;
-
     //菜品分类id
     private Long categoryId;
-
     //菜品价格
     private BigDecimal price;
-
     //图片
     private String image;
-
     //描述信息
     private String description;
-
     //0 停售 1 起售
     private Integer status;
-
     private LocalDateTime createTime;
-
     private LocalDateTime updateTime;
-
     private Long createUser;
-
     private Long updateUser;
 
 }
