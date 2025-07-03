@@ -82,7 +82,7 @@ public class CategoryController {
     }
 
     /**
-     * 根据类型查询分类
+     * 根据类型（菜品或者套餐 用于下拉框）查询分类
      */
     @GetMapping("/list")
     @ApiOperation("根据类型查询分类")

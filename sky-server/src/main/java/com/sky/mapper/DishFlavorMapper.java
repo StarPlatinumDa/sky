@@ -29,6 +29,11 @@ public interface DishFlavorMapper {
 
     void deleteBatchId(ArrayList<Long> ids);
 
+    /**
+     * 根据dishId查询dishFlavor
+     * @param id
+     * @return
+     */
     @Select("select * from dish_flavor where dish_id=#{id}")
     ArrayList<DishFlavor> getById(Long id);
 

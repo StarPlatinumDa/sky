@@ -58,8 +58,6 @@ public class DishServiceImpl implements DishService {
             // 批量插入
             dishFlavorMapper.insertBatch(flavors);
         }
-
-
     }
 
     @Override
@@ -119,5 +117,36 @@ public class DishServiceImpl implements DishService {
         // 口味表先删除再新增，这样就不用考虑多种复杂情况了(部分修改部分新增)
         dishFlavorMapper.deleteByDishId(dish.getId());
         dishFlavorMapper.insertBatch(dishDTO.getFlavors());
+    }
+
+
+    @Override
+    public ArrayList<Dish> getListById(Integer categoryId) {
+        ArrayList<Dish> dishArrayList=dishMapper.getListById(categoryId);
+        return dishArrayList;
+    }
+
+    /**
+     * 条件查询菜品和口味
+     * @param dish
+     * @return
+     */
+    public List<DishVO> listWithFlavor(Dish dish) {
+        List<Dish> dishList = dishMapper.list(dish);
+
+        List<DishVO> dishVOList = new ArrayList<>();
+
+        for (Dish d : dishList) {
+            DishVO dishVO = new DishVO();
+            BeanUtils.copyProperties(d,dishVO);
+
+            //根据菜品id查询对应的口味
+            List<DishFlavor> flavors = dishFlavorMapper.getById(d.getId());
+
+            dishVO.setFlavors(flavors);
+            dishVOList.add(dishVO);
+        }
+
+        return dishVOList;
     }
 }

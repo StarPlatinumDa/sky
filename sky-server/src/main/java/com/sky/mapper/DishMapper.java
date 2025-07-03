@@ -12,6 +12,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Mapper
 public interface DishMapper {
@@ -43,4 +44,19 @@ public interface DishMapper {
 
     @AutoFill(OperationType.UPDATE)
     void update(Dish dish);
+
+    /**
+     * 根据菜品类别查菜品
+     * @param categoryId
+     * @return
+     */
+    @Select("select * from dish where category_id=#{categoryId}")
+    ArrayList<Dish> getListById(Integer categoryId);
+
+    /**
+     * 根据id和status动态查询
+     * @param dish
+     * @return
+     */
+    List<Dish> list(Dish dish);
 }

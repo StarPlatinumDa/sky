@@ -34,6 +34,8 @@ public class HttpClientUtil {
      * @return
      */
     public static String doGet(String url,Map<String,String> paramMap){
+        // map传入一些需要拼接的参数
+
         // 创建Httpclient对象
         CloseableHttpClient httpClient = HttpClients.createDefault();
 
@@ -43,10 +45,12 @@ public class HttpClientUtil {
         try{
             URIBuilder builder = new URIBuilder(url);
             if(paramMap != null){
+                // 给URI拼接参数
                 for (String key : paramMap.keySet()) {
                     builder.addParameter(key,paramMap.get(key));
                 }
             }
+            // 创建地址 URI是更大类的URL(URL是具体的URI)
             URI uri = builder.build();
 
             //创建GET请求
@@ -63,6 +67,7 @@ public class HttpClientUtil {
             e.printStackTrace();
         }finally {
             try {
+                // 关闭资源
                 response.close();
                 httpClient.close();
             } catch (IOException e) {
@@ -112,6 +117,8 @@ public class HttpClientUtil {
         } finally {
             try {
                 response.close();
+                // 加上，源码中没有这行
+                httpClient.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }

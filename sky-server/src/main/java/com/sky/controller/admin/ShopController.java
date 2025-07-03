@@ -24,7 +24,7 @@ public class ShopController {
         return Result.success();
     }
 
-    @GetMapping("status")
+    @GetMapping("/status")
     @ApiOperation("查询店铺状态")
     public Result getStatus(){
         Integer status=shopService.getStatus();

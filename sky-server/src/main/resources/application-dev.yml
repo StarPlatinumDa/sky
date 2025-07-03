@@ -12,3 +12,6 @@ sky:
     password: 123456
     # 默认使用0号(总共自动创建了16个)
     database: 10
+#  wechat:
+#    appid:
+#    secret:
