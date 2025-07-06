@@ -126,6 +126,7 @@ public class DishServiceImpl implements DishService {
         return dishArrayList;
     }
 
+
     /**
      * 条件查询菜品和口味
      * @param dish
@@ -148,5 +149,15 @@ public class DishServiceImpl implements DishService {
         }
 
         return dishVOList;
+    }
+
+    /**
+     * 菜品起售停售
+     * @param status
+     * @param id
+     */
+    public void status(Integer status, Long id) {
+        Dish dish = Dish.builder().status(status).id(id).build();
+        dishMapper.update(dish);
     }
 }
