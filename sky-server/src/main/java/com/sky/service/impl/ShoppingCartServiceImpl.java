@@ -67,4 +67,15 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
 
     }
+
+    /**
+     * 根据用户id返回所有购物车
+     * @param userId
+     * @return
+     */
+    public ArrayList<ShoppingCart> list(Long userId) {
+        ShoppingCart userCart = ShoppingCart.builder().userId(userId).build();
+        ArrayList<ShoppingCart> list = shoppingCartMapper.list(userCart);
+        return list;
+    }
 }

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 public interface ShoppingCartMapper {
     /**
      * 动态条件 userId+菜品id(或套餐id)+口味
+     * 如果是userId+菜品Id就只能查到一条，如果是userId一个参数就是查用户的所有购物车数据
      * @param shoppingCart
      * @return
      */
