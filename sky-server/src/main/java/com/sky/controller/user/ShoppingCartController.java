@@ -43,4 +43,14 @@ public class ShoppingCartController {
         ArrayList<ShoppingCart> cartList=shoppingCartService.list(userId);
         return Result.success(cartList);
     }
+
+    @DeleteMapping("/clean")
+    @ApiOperation("清空购物车")
+    public Result clean(){
+        Long userId = BaseContext.getCurrentId();
+        log.info("根据用户id清空购物车,用户id为{}",userId);
+        shoppingCartService.clean(userId);
+        return Result.success();
+    }
+
 }

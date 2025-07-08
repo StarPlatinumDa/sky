@@ -9,4 +9,6 @@ public interface ShoppingCartService {
     void add(ShoppingCartDTO shoppingCartDTO);
 
     ArrayList<ShoppingCart> list(Long id);
+
+    void clean(Long userId);
 }
