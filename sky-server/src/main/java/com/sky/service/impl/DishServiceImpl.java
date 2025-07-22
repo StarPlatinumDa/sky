@@ -116,7 +116,11 @@ public class DishServiceImpl implements DishService {
         dishMapper.update(dish);
         // 口味表先删除再新增，这样就不用考虑多种复杂情况了(部分修改部分新增)
         dishFlavorMapper.deleteByDishId(dish.getId());
-        dishFlavorMapper.insertBatch(dishDTO.getFlavors());
+        // 必须得有才能插入
+        if(dishDTO.getFlavors()!=null&&!dishDTO.getFlavors().isEmpty()){
+            dishFlavorMapper.insertBatch(dishDTO.getFlavors());
+        }
+
     }
 
 
