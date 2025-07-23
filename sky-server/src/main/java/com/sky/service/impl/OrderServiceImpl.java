@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
@@ -14,6 +15,7 @@ import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
+import com.sky.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 @Service
 @Slf4j
@@ -42,9 +45,14 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private UserMapper userMapper;
 
+
+    @Autowired // websocket连接
+    private WebSocketServer webSocketServer;
+
     // 跳过微信后，方法中没有订单号，就无法根据订单号获取订单id进而更新  所以在创建订单时就存在类里
     // 在submit方法中给他赋值
     private Long orderId;
+    private String orderNumber;
 
     /**
      * 用户下单
@@ -87,6 +95,7 @@ public class OrderServiceImpl implements OrderService {
 
         // 为了后续能直接拿到id就直接存在类中
         this.orderId=order.getId();
+        this.orderNumber=order.getNumber();
 
 
         ArrayList<OrderDetail> orderDetailArrayList = new ArrayList<>();
@@ -139,7 +148,7 @@ public class OrderServiceImpl implements OrderService {
  */
 
         // 跳过微信支付和后面微信客户端调用的支付成功本地后端接口(notify)，直接修改状态
-        // 直接跳到PayNotifyController中的paySuccessNotify方法的最后orderService.paySuccess(outTradeNo)方法
+        // 直接跳到PayNotifyController中的paySuccessNotify方法中最后的代码orderService.paySuccess(outTradeNo)方法
         // 参数为下一个方法里的id,status,payStatus,checkoutTime
         // 此时还有一个问题，就是跳过后，这里没有订单号，就无法根据订单号获取订单id进而更新  所以在创建订单时就存在类里
 
@@ -164,6 +173,16 @@ public class OrderServiceImpl implements OrderService {
                 .build();
         orderMapper.update(orders);
 
+        // websocket新增
+        // 通过websocket向客户端浏览器推送消息type orderId content
+        HashMap map = new HashMap();
+        map.put("type",1);// 1表示来单提醒 2表示客户催单
+        map.put("orderId",this.orderId);
+        map.put("content","订单号，"+this.orderNumber);
+
+        String json = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
+
 
         return vo;
     }
@@ -187,5 +206,16 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         orderMapper.update(orders);
+
+        // websocket新增
+        // 通过websocket向客户端浏览器推送消息type orderId content
+        HashMap map = new HashMap();
+        map.put("type",1);// 1表示来单提醒 2表示客户催单
+        map.put("orderId",ordersDB.getId());
+        map.put("content","订单号，"+outTradeNo);
+
+        String json = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
+
     }
 }
