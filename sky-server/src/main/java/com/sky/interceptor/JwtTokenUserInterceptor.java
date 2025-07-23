@@ -33,6 +33,10 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
      * @throws Exception
      */
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        /**
+         * 用户端也要进行jwt身份校验，获取是在user/UserController中的login方法，也就是说微信登录是经过本地后端而不是微信那边
+         */
+
 
         //判断当前拦截到的是Controller的方法还是其他资源
         if (!(handler instanceof HandlerMethod)) {
@@ -40,7 +44,7 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        //1、从请求头中获取令牌 头中的名字就是token,在配置文件yml中设置的
+        //1、从请求头中获取令牌 头中的名字是authentication,在配置文件yml中设置的
         String token = request.getHeader(jwtProperties.getUserTokenName());
 
         //2、校验令牌

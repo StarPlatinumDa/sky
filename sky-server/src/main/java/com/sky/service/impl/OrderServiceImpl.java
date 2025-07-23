@@ -218,4 +218,28 @@ public class OrderServiceImpl implements OrderService {
         webSocketServer.sendToAllClient(json);
 
     }
+
+    /**
+     * 用户催单
+     * @param id
+     */
+    public void reminder(Long id) {
+        // 根据订单id查询订单
+        Orders order = orderMapper.getById(id);
+
+        // 不存在
+        if(order==null){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        // websocket
+        // 通过websocket向客户端浏览器推送消息type orderId content
+        HashMap map = new HashMap();
+        map.put("type",2);// 1表示来单提醒 2表示客户催单
+        map.put("orderId",id);
+        map.put("content","订单号，"+order.getNumber());
+
+        String json = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
+    }
 }
