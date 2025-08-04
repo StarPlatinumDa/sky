@@ -24,6 +24,7 @@ public class ShoppingCartController {
 
     @PostMapping("/add")
     @ApiOperation("添加购物车")
+    // 购物车数据经常变化，所以不用redis存储？
 //    @CachePut(cacheNames = "shoppingcartCache",key = "#shoppingCartDTO.")
     public Result add(@RequestBody ShoppingCartDTO shoppingCartDTO){
         log.info("添加购物车，商品信息为：{},",shoppingCartDTO);

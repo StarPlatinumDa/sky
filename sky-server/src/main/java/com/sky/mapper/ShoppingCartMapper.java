@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Update;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Mapper
 public interface ShoppingCartMapper {
@@ -38,4 +39,10 @@ public interface ShoppingCartMapper {
 
     @Delete("delete from shopping_cart where id=#{id}")
     void deleteBycartId(Long id);
+
+    /**
+     * 批量新增购物车
+     * @param shoppingCarts
+     */
+    void insertBatch(List<ShoppingCart> shoppingCarts);
 }

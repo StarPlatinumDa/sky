@@ -24,7 +24,6 @@ import com.sky.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -283,5 +282,84 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return new PageResult(orderPage.getTotal(),orderVOList);
+    }
+
+    /**
+     * 根据id查询订单详情
+     * @param id
+     * @return
+     */
+    public OrderVO orderDetail(Long id) {
+        OrderVO orderVO = new OrderVO();
+        // 1.查询order表得到基础信息
+        Orders order=orderMapper.getById(id);
+
+        BeanUtils.copyProperties(order,orderVO);
+        // 2.查询order_details表得到详细信息
+        List<OrderDetail> orderDetailList=orderDetailMapper.getByOrderId(orderVO.getId());
+        orderVO.setOrderDetailList(orderDetailList);
+
+        return orderVO;
+    }
+
+    /**
+     * 取消订单
+     * @param id
+     */
+    public void cancel(Long id) {
+        // 先查询订单，得到订单状态
+        Orders orders=orderMapper.getById(id);
+        if(orders==null){
+            // 订单不存在
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        // 订单状态 1待付款 2待接单 3已接单 4派送中 5已完成 6已取消
+        // 只有接单之前才能直接取消,其他需要与商家协商，让商家改变订单状态后才能取消
+        if(orders.getStatus()>2){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        // Todo 没有做微信的功能，但如果是待接单状态的取消，需要进行退款
+//        // 订单处于待接单状态下取消，需要进行退款
+//        if (orders.getStatus().equals(Orders.TO_BE_CONFIRMED)) {
+//            //调用微信支付退款接口
+//            weChatPayUtil.refund(
+//                    orders.getNumber(), //商户订单号
+//                    orders.getNumber(), //商户退款单号
+//                    new BigDecimal(0.01),//退款金额，单位 元
+//                    new BigDecimal(0.01));//原订单金额
+//
+//            //支付状态修改为 退款
+//            orders.setPayStatus(Orders.REFUND);
+//        }
+
+        // 更新订单状态、取消原因、取消时间
+        orders.setStatus(Orders.CANCELLED);
+        orders.setCancelReason("用户取消");
+        orders.setCancelTime(LocalDateTime.now());
+        orderMapper.update(orders);
+    }
+
+    /**
+     * 再来一单
+     * @param id
+     */
+    public void repetition(Long id) {
+        // 再来一单就是查询出订单的详细信息，并把信息放到购物车中
+        // 查询出订单的详细信息
+        List<OrderDetail> orderDetails = orderDetailMapper.getByOrderId(id);
+        // 把订单详情对象转化为购物车对象(购物车实体与order_detail实体仅仅多了一个create_time和user_id)
+        List<ShoppingCart> shoppingCarts = new ArrayList<>();
+        for (OrderDetail orderDetail : orderDetails) {
+            ShoppingCart cart = new ShoppingCart();
+            // 忽略id，因为新增时id是自增的
+            BeanUtils.copyProperties(orderDetail,cart,"id");
+            cart.setCreateTime(LocalDateTime.now());
+            cart.setUserId(BaseContext.getCurrentId());
+            shoppingCarts.add(cart);
+        }
+
+        // 将购物车对象批量添加到数据库
+        shoppingCartMapper.insertBatch(shoppingCarts);
     }
 }
