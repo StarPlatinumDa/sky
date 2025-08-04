@@ -1,9 +1,12 @@
 package com.sky.mapper;
 
+import com.github.pagehelper.Page;
+import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -44,4 +47,15 @@ public interface OrderMapper {
      */
     @Select("select * from orders where id = #{id}")
     Orders getById(Long id);
+
+    /**
+     * 获取历史订单，分页查询
+     * @param ordersPageQueryDTO
+     * @return
+     */
+    Page<Orders> historyOrders(OrdersPageQueryDTO ordersPageQueryDTO);
+
+
+    @Select("select sum(amount) from orders where order_time>=#{from} and order_time<#{to} and orders.status=#{status}")
+    Double getSumByDate(LocalDate from, LocalDate to, Integer status);
 }

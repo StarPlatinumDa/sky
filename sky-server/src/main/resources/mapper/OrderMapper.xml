@@ -43,4 +43,11 @@
         </set>
         where id = #{id}
     </update>
+    <select id="historyOrders" resultType="com.sky.entity.Orders">
+        select * from orders
+        where
+        <if test="userId">user_id=#{userId}</if>
+        <if test="status">and status=#{status}</if>
+        order by order_time desc
+    </select>
 </mapper>
