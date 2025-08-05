@@ -1,8 +1,12 @@
 package com.sky.service.impl;
 
+import com.sky.dto.GoodsSalesDTO;
+import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
+import com.sky.vo.OrderReportVO;
+import com.sky.vo.SalesTop10ReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -95,5 +101,66 @@ public class ReportServiceImpl implements ReportService {
                 .dateList(dateList)
                 .totalUserList(totalUserList)
                 .newUserList(newUserList).build();
+    }
+
+    /**
+     * 订单统计接口
+     * @param begin
+     * @param end
+     * @return
+     */
+    public OrderReportVO ordersStatistics(LocalDate begin, LocalDate end) {
+        ArrayList<LocalDate> localDates = new ArrayList<>();
+        ArrayList<Integer> orderCount = new ArrayList<>();
+        ArrayList<Integer> validOrderCount = new ArrayList<>();
+        for (LocalDate d=begin;!d.isEqual(end.plusDays(1));d=d.plusDays(1)){
+            localDates.add(d);
+        }
+        // 总订单数
+        Integer totalSum=0;
+        // 总有效订单数(状态为已完成)
+        Integer validSum=0;
+        for (LocalDate date : localDates) {
+            // 查询每天的，加一起就是总的 (不用管日期之外的订单)
+            Integer tempTotal=orderMapper.countByDateAndStatus(date,date.plusDays(1),null);
+            Integer tempValid=orderMapper.countByDateAndStatus(date,date.plusDays(1), Orders.COMPLETED);
+            totalSum+=tempTotal;
+            orderCount.add(tempTotal);
+            validSum+=tempValid;
+            validOrderCount.add(tempValid);
+        }
+        Double orderCompletionRate= validSum.doubleValue()/totalSum;
+
+        String dateList= StringUtils.join(localDates,",");
+        String orderCountList= StringUtils.join(orderCount,",");
+        String validOrderCountList= StringUtils.join(validOrderCount,",");
+
+        return OrderReportVO.builder()
+                .dateList(dateList)
+                .orderCountList(orderCountList)
+                .validOrderCountList(validOrderCountList)
+                .totalOrderCount(totalSum)
+                .validOrderCount(validSum)
+                .orderCompletionRate(orderCompletionRate).build();
+    }
+
+    /**
+     * 查询销量排名top10接口
+     * @param begin
+     * @param end
+     * @return
+     */
+    public SalesTop10ReportVO top10(LocalDate begin, LocalDate end) {
+
+        // 注意sum得到的别名要和实体类中的一致 即number
+        List<GoodsSalesDTO> goodsSalesDTOList=orderMapper.top10(begin,end,Orders.COMPLETED);
+        List<String> name = goodsSalesDTOList.stream().map(item -> item.getName()).collect(Collectors.toList());
+        String nameList=StringUtils.join(name,",");
+        List<Integer> number = goodsSalesDTOList.stream().map(item -> item.getNumber()).collect(Collectors.toList());
+        String numberList = StringUtils.join(number,",");
+
+        return SalesTop10ReportVO.builder()
+                .nameList(nameList)
+                .numberList(numberList).build();
     }
 }
