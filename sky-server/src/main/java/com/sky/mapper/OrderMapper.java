@@ -58,4 +58,9 @@ public interface OrderMapper {
 
     @Select("select sum(amount) from orders where order_time>=#{from} and order_time<#{to} and orders.status=#{status}")
     Double getSumByDate(LocalDate from, LocalDate to, Integer status);
+
+    Page<Orders> getPage(OrdersPageQueryDTO ordersPageQueryDTO);
+
+    @Select("select count(id) from orders where status=#{status}")
+    Integer countByStatus(Integer status);
 }
