@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -89,5 +90,21 @@ public class ReportController {
         log.info("订查询销量排名top10接口,{},{}",begin,end);
         SalesTop10ReportVO salesTop10ReportVO=reportService.top10(begin,end);
         return Result.success(salesTop10ReportVO);
+    }
+
+    /**
+     * 导出Excel报表接口
+     * @param response
+     */
+    @GetMapping("/export")
+    @ApiOperation("导出Excel报表接口")
+    // response对象用于把文件写给浏览器，即下载
+    // 普通的接口 框架其实自动调用了response把对象返回 response.getWriter().write(...) 并且默认Content-Type: application/json
+    // 也可在GetMapping里设置@GetMapping(value = "/xml", produces = "application/octet-stream")  二进制
+
+    // 而二进制文件需要自己手动写，自己写ContentType  Header
+    public void export(HttpServletResponse response){
+        log.info("导出Excel报表接口");
+        reportService.export(response);
     }
 }

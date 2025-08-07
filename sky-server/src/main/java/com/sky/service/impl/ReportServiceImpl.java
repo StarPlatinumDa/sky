@@ -5,16 +5,22 @@ import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
-import com.sky.vo.OrderReportVO;
-import com.sky.vo.SalesTop10ReportVO;
-import com.sky.vo.TurnoverReportVO;
-import com.sky.vo.UserReportVO;
+import com.sky.service.WorkspaceService;
+import com.sky.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +35,9 @@ public class ReportServiceImpl implements ReportService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private WorkspaceService workspaceService;
 
     /**
      * 营业额统计
@@ -162,5 +171,78 @@ public class ReportServiceImpl implements ReportService {
         return SalesTop10ReportVO.builder()
                 .nameList(nameList)
                 .numberList(numberList).build();
+    }
+
+    /**
+     * 导出Excel报表接口
+     * @param response
+     */
+    public void export(HttpServletResponse response) {
+        // 1.查询数据库获取30天的数据
+
+        // 查询概览数据
+        LocalDate begin = LocalDate.now().minusDays(30);
+        LocalDate end = LocalDate.now();// 这个其实是今天0点
+        BusinessDataVO businessDataVO = workspaceService.getBusinessData(begin, end);
+
+
+
+        // 2.把数据通过POI写入excel文件
+
+        // 获得类对象，再获得类加载器，再从类路径下读取资源(返回输入流对象)
+        // 类路径就是编译时的target/classes 根目录   最开头不要加/
+        InputStream input = this.getClass().getClassLoader().getResourceAsStream("template/excelTemplate.xlsx");
+        try {
+            // 读取模板excel文件
+            XSSFWorkbook excel = new XSSFWorkbook(input);
+
+            // 获取表格的第一个sheet页
+            XSSFSheet sheet = excel.getSheetAt(0);
+            // 填充数据--时间
+            sheet.getRow(1).getCell(1).setCellValue("时间："+begin+"-"+end);
+            // 第四行填写
+            XSSFRow row = sheet.getRow(3);
+            row.getCell(2).setCellValue(businessDataVO.getTurnover());
+            row.getCell(4).setCellValue(businessDataVO.getOrderCompletionRate());
+            row.getCell(6).setCellValue(businessDataVO.getNewUsers());
+            // 第五行填写
+            row = sheet.getRow(4);
+            row.getCell(2).setCellValue(businessDataVO.getValidOrderCount());
+            row.getCell(4).setCellValue(businessDataVO.getUnitPrice());
+
+            // 填充明细数据
+            for (int i = 0; i < 30; i++) {
+                // 最后一天也就是now是今天0点，所以要计算一天的数据，就是从昨天0点到今天0点
+                LocalDate date = begin.plusDays(i);
+                BusinessDataVO oneday = workspaceService.getBusinessData(date, date.plusDays(1));
+                row = sheet.getRow(7+i);
+                // 日期
+                row.getCell(1).setCellValue(date.toString());
+                row.getCell(2).setCellValue(oneday.getTurnover());
+                row.getCell(3).setCellValue(oneday.getValidOrderCount());
+                row.getCell(4).setCellValue(oneday.getOrderCompletionRate());
+                row.getCell(5).setCellValue(oneday.getUnitPrice());
+                row.getCell(6).setCellValue(oneday.getNewUsers());
+            }
+
+
+            // 3.通过输出流把excel文件下载到浏览器
+
+            // 这里是对象.write(stream)，是因为这里的对象具有写能力，只负责给它通道，它负责数据内容和格式。
+            // 而如果是普通的文件，就是先获取文件内容，再用stream.write(内容)，是反过来的
+            ServletOutputStream out = response.getOutputStream();
+            excel.write(out);
+
+            // 关闭资源
+            out.close();
+            excel.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+
+
+
     }
 }

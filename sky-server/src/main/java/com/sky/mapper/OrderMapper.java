@@ -57,6 +57,13 @@ public interface OrderMapper {
     Page<Orders> historyOrders(OrdersPageQueryDTO ordersPageQueryDTO);
 
 
+    /**
+     * 营业额
+     * @param from
+     * @param to
+     * @param status
+     * @return
+     */
     @Select("select sum(amount) from orders where order_time>=#{from} and order_time<#{to} and orders.status=#{status}")
     Double getSumByDate(LocalDate from, LocalDate to, Integer status);
 

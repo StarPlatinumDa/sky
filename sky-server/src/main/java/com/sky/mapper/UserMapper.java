@@ -22,6 +22,20 @@ public interface UserMapper {
     @Select("select * from user where id=#{userId};")
     User getById(Long userId);
 
+    /**
+     * 历史用户数
+     * @param date
+     * @return
+     */
     @Select("select count(id) from user where create_time<#{date}")
     Integer countLessThanDate(LocalDate date);
+
+    /**
+     * 当天新增用户数
+     * @param begin
+     * @param end
+     * @return
+     */
+    @Select("select count(id) from user where create_time<#{end} and create_time>=#{begin}")
+    Integer countOneDay(LocalDate begin, LocalDate end);
 }
